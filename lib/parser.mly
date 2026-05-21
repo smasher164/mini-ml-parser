@@ -39,7 +39,18 @@
 %%
 
 program:
-  | e = exp EOF { ([], e) }
+  | tycons = list(tycon_decl) e = exp EOF
+      { (tycons, e) }
+
+tycon_decl:
+  | TYPE name = IDENT params = list(TYVAR) EQ body = tycon_body
+      { { Ast.name = name; type_params = params; ty = body } }
+
+tycon_body:
+  | LBRACE RBRACE
+      { [] }
+  | LBRACE fs = separated_nonempty_list(COMMA, row_field) RBRACE
+      { fs }
 
 exp:
   | FUN x = IDENT ARROW body = exp
