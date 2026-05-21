@@ -1,0 +1,15 @@
+(library
+ (name mini_ml)
+ (libraries sexplib0)
+ ; -27 (unused-var-strict): re2ocaml may emit actions that don't reference
+ ; yyrecord (e.g. the EOF action). Suppressed library-wide.
+ (flags (:standard -w -27))
+ (preprocess (pps ppx_sexp_conv)))
+
+(menhir
+ (modules parser))
+
+(rule
+ (target lexer.ml)
+ (deps lexer.re2c)
+ (action (run re2ocaml -o %{target} %{deps})))

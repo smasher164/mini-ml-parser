@@ -1,0 +1,4 @@
+(executable
+ (name main)
+ (public_name main)
+ (libraries mini_ml sexplib0))

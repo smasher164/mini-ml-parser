@@ -1,0 +1,25 @@
+open String  (* for unqualified unsafe_get used in generated code *)
+
+type lexbuf = {
+  yyinput : string;
+  yylimit : int;
+  mutable yycursor : int;
+  mutable yymarker : int;
+}
+
+let make input =
+  { yyinput = input;
+    yylimit = String.length input;
+    yycursor = 0;
+    yymarker = 0;
+  }
+
+%{
+  re2c:api = record;
+  re2c:YYFN = ["lex;Parser.token", "yyrecord;lexbuf"];
+  re2c:yyfill:enable = 0;
+  re2c:eof = 0;
+
+  *  { failwith (Printf.sprintf "lexer: unexpected char at offset %d" yyrecord.yycursor) }
+  $  { Parser.EOF }
+%}
