@@ -56,6 +56,30 @@ exp:
 let_decl:
   | x = IDENT EQ rhs = exp
       { (x, None, rhs) }
+  | x = IDENT COLON gty = generic_ty EQ rhs = exp
+      { (x, Some gty, rhs) }
+
+generic_ty:
+  | t = ty
+      { { Ast.type_params = []; ty = t } }
+  | FORALL tvs = nonempty_list(TYVAR) DOT t = ty
+      { { Ast.type_params = List.map (fun x -> (x, Ast.NoRow)) tvs; ty = t } }
+
+ty:
+  | l = app_ty ARROW r = ty   { Ast.TyArrow (l, r) }
+  | t = app_ty                { t }
+
+app_ty:
+  | head = atom_ty args = list(atom_ty)
+      { match args with
+        | [] -> head
+        | _  -> Ast.TyApp (head :: args) }
+
+atom_ty:
+  | BOOL                      { Ast.TyBool }
+  | x = IDENT                 { Ast.TyName x }
+  | x = TYVAR                 { Ast.TyName x }
+  | LPAREN t = ty RPAREN      { t }
 
 app_exp:
   | f = app_exp a = atom_exp     { Ast.EApp (f, a) }
