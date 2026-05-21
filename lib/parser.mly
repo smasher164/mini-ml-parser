@@ -34,9 +34,48 @@
 %token <string> IDENT
 %token <string> TYVAR
 
-%start <unit> program
+%start <Ast.prog> program
 
 %%
 
 program:
-  | EOF { () }
+  | e = exp EOF { ([], e) }
+
+exp:
+  | FUN x = IDENT ARROW body = exp
+      { Ast.ELam (x, body) }
+  | IF c = exp THEN t = exp ELSE e = exp
+      { Ast.EIf (c, t, e) }
+  | LET d = let_decl IN body = exp
+      { Ast.ELet (d, body) }
+  | LET REC ds = separated_nonempty_list(AND, let_decl) IN body = exp
+      { Ast.ELetRec (ds, body) }
+  | e = app_exp
+      { e }
+
+let_decl:
+  | x = IDENT EQ rhs = exp
+      { (x, None, rhs) }
+
+app_exp:
+  | f = app_exp a = atom_exp     { Ast.EApp (f, a) }
+  | e = atom_exp                 { e }
+
+atom_exp:
+  | TRUE                         { Ast.EBool true }
+  | FALSE                        { Ast.EBool false }
+  | x = IDENT                    { Ast.EVar x }
+  | LPAREN e = exp RPAREN        { e }
+  | LBRACE b = record_body RBRACE { b }
+  | r = atom_exp DOT fld = IDENT { Ast.EProj (r, fld) }
+
+record_body:
+  | (* empty *)
+      { Ast.ERecord [] }
+  | fs = separated_nonempty_list(COMMA, record_field)
+      { Ast.ERecord fs }
+  | r = exp WITH fs = separated_nonempty_list(COMMA, record_field)
+      { Ast.EWith (r, fs) }
+
+record_field:
+  | x = IDENT EQ e = exp         { (x, e) }
