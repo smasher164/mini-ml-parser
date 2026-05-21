@@ -10,7 +10,14 @@
 (menhir
  (modules parser))
 
+; Regenerate lexer.ml from lexer.re2c when re2ocaml is on PATH (developer
+; machines). The generated file is promoted into the source tree and
+; committed, so consumers who lack re2ocaml just use the committed copy.
+; --no-generation-date keeps the promoted output byte-stable so the
+; committed file does not drift on every build.
 (rule
  (target lexer.ml)
  (deps lexer.re2c)
- (action (run re2ocaml -o %{target} %{deps})))
+ (mode promote)
+ (enabled_if %{bin-available:re2ocaml})
+ (action (run re2ocaml --no-generation-date -o %{target} %{deps})))
