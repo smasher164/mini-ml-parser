@@ -5,6 +5,10 @@ type lexbuf = {
   yylimit : int;
   mutable yycursor : int;
   mutable yymarker : int;
+  mutable yyt1 : int;
+  (* Tags capturing the start/end of an IDENT or TYVAR lexeme. *)
+  mutable t1 : int;
+  mutable t2 : int;
 }
 
 let make input =
@@ -12,6 +16,9 @@ let make input =
     yylimit = String.length input;
     yycursor = 0;
     yymarker = 0;
+    yyt1 = 0;
+    t1 = -1;
+    t2 = -1;
   }
 
 %{
@@ -19,7 +26,50 @@ let make input =
   re2c:YYFN = ["lex;Parser.token", "yyrecord;lexbuf"];
   re2c:yyfill:enable = 0;
   re2c:eof = 0;
+  re2c:tags = 1;
 
-  *  { failwith (Printf.sprintf "lexer: unexpected char at offset %d" yyrecord.yycursor) }
-  $  { Parser.EOF }
+  *           { failwith (Printf.sprintf "lexer: unexpected char at offset %d" yyrecord.yycursor) }
+  $           { Parser.EOF }
+  [ \t\r\n]+  { lex yyrecord }
+
+  // Keywords
+  "let"       { Parser.LET }
+  "rec"       { Parser.REC }
+  "and"       { Parser.AND }
+  "in"        { Parser.IN }
+  "fun"       { Parser.FUN }
+  "if"        { Parser.IF }
+  "then"      { Parser.THEN }
+  "else"      { Parser.ELSE }
+  "true"      { Parser.TRUE }
+  "false"     { Parser.FALSE }
+  "with"      { Parser.WITH }
+  "type"      { Parser.TYPE }
+  "bool"      { Parser.BOOL }
+  "forall"    { Parser.FORALL }
+
+  // Punctuation
+  "..."       { Parser.DOTS }
+  "->"        { Parser.ARROW }
+  "=>"        { Parser.FATARROW }
+  "="         { Parser.EQ }
+  "::"        { Parser.COLONCOLON }
+  ":"         { Parser.COLON }
+  "."         { Parser.DOT }
+  ","         { Parser.COMMA }
+  "("         { Parser.LPAREN }
+  ")"         { Parser.RPAREN }
+  "{"         { Parser.LBRACE }
+  "}"         { Parser.RBRACE }
+
+  // Identifiers
+  ident = [a-zA-Z_][a-zA-Z_0-9]*;
+  tyvar = "'" [a-zA-Z] [a-zA-Z_0-9']*;
+
+  @t1 ident @t2 {
+    Parser.IDENT (String.sub yyrecord.yyinput yyrecord.t1 (yyrecord.t2 - yyrecord.t1))
+  }
+  @t1 tyvar @t2 {
+    Parser.TYVAR (String.sub yyrecord.yyinput yyrecord.t1 (yyrecord.t2 - yyrecord.t1))
+  }
 %}
