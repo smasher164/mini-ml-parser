@@ -1,5 +1,6 @@
 (library
  (name mini_ml)
+ (public_name mini_ml_parser)
  (libraries sexplib0)
  ; -27 (unused-var-strict): re2ocaml may emit actions that don't reference
  ; yyrecord (e.g. the EOF action). Suppressed library-wide.
