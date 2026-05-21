@@ -63,7 +63,35 @@ generic_ty:
   | t = ty
       { { Ast.type_params = []; ty = t } }
   | FORALL tvs = nonempty_list(TYVAR) DOT t = ty
-      { { Ast.type_params = List.map (fun x -> (x, Ast.NoRow)) tvs; ty = t } }
+      { { Ast.type_params = List.map (fun tv -> (tv, Ast.NoRow)) tvs; ty = t } }
+  | FORALL tvs = nonempty_list(TYVAR) DOT
+      cs = separated_nonempty_list(COMMA, row_constraint_decl) FATARROW t = ty
+      { let params = List.map (fun tv ->
+          match List.assoc_opt tv cs with
+          | Some r -> (tv, r)
+          | None   -> (tv, Ast.NoRow)) tvs
+        in
+        { Ast.type_params = params; ty = t } }
+
+row_constraint_decl:
+  | tv = TYVAR COLONCOLON r = row_body
+      { (tv, r) }
+
+row_body:
+  | LBRACE RBRACE                       { Ast.ClosedRow [] }
+  | LBRACE DOTS RBRACE                  { Ast.OpenRow [] }
+  | LBRACE r = row_field_list RBRACE
+      { let (fs, is_open) = r in
+        if is_open then Ast.OpenRow fs else Ast.ClosedRow fs }
+
+row_field_list:
+  | f = row_field                                    { ([f], false) }
+  | f = row_field COMMA DOTS                         { ([f], true) }
+  | f = row_field COMMA rest = row_field_list
+      { let (fs, is_open) = rest in (f :: fs, is_open) }
+
+row_field:
+  | x = IDENT COLON t = ty               { (x, t) }
 
 ty:
   | l = app_ty ARROW r = ty   { Ast.TyArrow (l, r) }
