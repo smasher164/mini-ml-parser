@@ -31,7 +31,7 @@
           pname = "mini-ml-parser";
           version = "0.1.0";
           src = ./.;
-          buildInputs = with ocamlPackages; [ sexplib ppx_sexp_conv ];
+          buildInputs = with ocamlPackages; [ sexplib ppx_sexp_conv ppx_inline_test ];
         };
       });
 }

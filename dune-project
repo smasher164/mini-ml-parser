@@ -14,4 +14,5 @@
   (ocaml (>= 4.14))
   menhir
   sexplib0
-  ppx_sexp_conv))
+  ppx_sexp_conv
+  ppx_inline_test))
