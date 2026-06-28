@@ -114,7 +114,7 @@ let rec yy0 (yyrecord : lexbuf) : Parser.token =
             (yy29 [@tailcall]) yyrecord
         | _ ->
             if (yyrecord.yylimit <= yyrecord.yycursor) then (
-                (yy89 [@tailcall]) yyrecord
+                (yy100 [@tailcall]) yyrecord
             ) else (
                 yyrecord.yycursor <- yyrecord.yycursor + 1;
                 (yy1 [@tailcall]) yyrecord
@@ -153,17 +153,17 @@ and yy5 (yyrecord : lexbuf) : Parser.token =
         | _ -> (yy2 [@tailcall]) yyrecord
 
 and yy6 (yyrecord : lexbuf) : Parser.token =
-#60 "lexer.re2c"
+#62 "lexer.re2c"
     Parser.LPAREN
 #159 "lexer.ml"
 
 and yy7 (yyrecord : lexbuf) : Parser.token =
-#61 "lexer.re2c"
+#63 "lexer.re2c"
     Parser.RPAREN
 #164 "lexer.ml"
 
 and yy8 (yyrecord : lexbuf) : Parser.token =
-#59 "lexer.re2c"
+#61 "lexer.re2c"
     Parser.COMMA
 #169 "lexer.ml"
 
@@ -185,7 +185,7 @@ and yy10 (yyrecord : lexbuf) : Parser.token =
         | _ -> (yy11 [@tailcall]) yyrecord
 
 and yy11 (yyrecord : lexbuf) : Parser.token =
-#58 "lexer.re2c"
+#60 "lexer.re2c"
     Parser.DOT
 #191 "lexer.ml"
 
@@ -198,7 +198,7 @@ and yy12 (yyrecord : lexbuf) : Parser.token =
         | _ -> (yy13 [@tailcall]) yyrecord
 
 and yy13 (yyrecord : lexbuf) : Parser.token =
-#57 "lexer.re2c"
+#59 "lexer.re2c"
     Parser.COLON
 #204 "lexer.ml"
 
@@ -211,7 +211,7 @@ and yy14 (yyrecord : lexbuf) : Parser.token =
         | _ -> (yy15 [@tailcall]) yyrecord
 
 and yy15 (yyrecord : lexbuf) : Parser.token =
-#55 "lexer.re2c"
+#57 "lexer.re2c"
     Parser.EQ
 #217 "lexer.ml"
 
@@ -232,7 +232,7 @@ and yy17 (yyrecord : lexbuf) (yych : char) : Parser.token =
 and yy18 (yyrecord : lexbuf) : Parser.token =
     yyrecord.t1 <- yyrecord.yyt1;
     yyrecord.t2 <- yyrecord.yycursor;
-#69 "lexer.re2c"
+#71 "lexer.re2c"
     
     Parser.IDENT (String.sub yyrecord.yyinput yyrecord.t1 (yyrecord.t2 - yyrecord.t1))
 
@@ -335,12 +335,12 @@ and yy27 (yyrecord : lexbuf) : Parser.token =
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy28 (yyrecord : lexbuf) : Parser.token =
-#62 "lexer.re2c"
+#64 "lexer.re2c"
     Parser.LBRACE
 #341 "lexer.ml"
 
 and yy29 (yyrecord : lexbuf) : Parser.token =
-#63 "lexer.re2c"
+#65 "lexer.re2c"
     Parser.RBRACE
 #346 "lexer.ml"
 
@@ -359,14 +359,14 @@ and yy30 (yyrecord : lexbuf) : Parser.token =
 and yy31 (yyrecord : lexbuf) : Parser.token =
     yyrecord.t1 <- yyrecord.yyt1;
     yyrecord.t2 <- yyrecord.yycursor;
-#72 "lexer.re2c"
+#74 "lexer.re2c"
     
     Parser.TYVAR (String.sub yyrecord.yyinput yyrecord.t1 (yyrecord.t2 - yyrecord.t1))
 
 #367 "lexer.ml"
 
 and yy32 (yyrecord : lexbuf) : Parser.token =
-#53 "lexer.re2c"
+#55 "lexer.re2c"
     Parser.ARROW
 #372 "lexer.ml"
 
@@ -383,12 +383,12 @@ and yy34 (yyrecord : lexbuf) : Parser.token =
     (yy11 [@tailcall]) yyrecord
 
 and yy35 (yyrecord : lexbuf) : Parser.token =
-#56 "lexer.re2c"
+#58 "lexer.re2c"
     Parser.COLONCOLON
 #389 "lexer.ml"
 
 and yy36 (yyrecord : lexbuf) : Parser.token =
-#54 "lexer.re2c"
+#56 "lexer.re2c"
     Parser.FATARROW
 #394 "lexer.ml"
 
@@ -468,15 +468,19 @@ and yy45 (yyrecord : lexbuf) : Parser.token =
         | '0'..'9'
         | 'A'..'Z'
         | '_'
-        | 'a'..'z' ->
+        | 'a'..'r'
+        | 't'..'z' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
             (yy16 [@tailcall]) yyrecord
+        | 's' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy62 [@tailcall]) yyrecord
         | _ -> (yy46 [@tailcall]) yyrecord
 
 and yy46 (yyrecord : lexbuf) : Parser.token =
 #39 "lexer.re2c"
     Parser.IN
-#480 "lexer.ml"
+#484 "lexer.ml"
 
 and yy47 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
@@ -484,7 +488,7 @@ and yy47 (yyrecord : lexbuf) : Parser.token =
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 't' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy62 [@tailcall]) yyrecord
+            (yy63 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy48 (yyrecord : lexbuf) : Parser.token =
@@ -493,7 +497,7 @@ and yy48 (yyrecord : lexbuf) : Parser.token =
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 'c' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy64 [@tailcall]) yyrecord
+            (yy65 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy49 (yyrecord : lexbuf) : Parser.token =
@@ -502,16 +506,19 @@ and yy49 (yyrecord : lexbuf) : Parser.token =
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 'e' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy66 [@tailcall]) yyrecord
+            (yy67 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy50 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
         | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 'a' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy68 [@tailcall]) yyrecord
         | 'u' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy67 [@tailcall]) yyrecord
+            (yy69 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy51 (yyrecord : lexbuf) : Parser.token =
@@ -520,7 +527,7 @@ and yy51 (yyrecord : lexbuf) : Parser.token =
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 'p' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy68 [@tailcall]) yyrecord
+            (yy70 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy52 (yyrecord : lexbuf) : Parser.token =
@@ -529,13 +536,13 @@ and yy52 (yyrecord : lexbuf) : Parser.token =
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 't' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy69 [@tailcall]) yyrecord
+            (yy71 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy53 (yyrecord : lexbuf) : Parser.token =
-#52 "lexer.re2c"
+#54 "lexer.re2c"
     Parser.DOTS
-#539 "lexer.ml"
+#546 "lexer.ml"
 
 and yy54 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
@@ -551,7 +558,7 @@ and yy54 (yyrecord : lexbuf) : Parser.token =
 and yy55 (yyrecord : lexbuf) : Parser.token =
 #38 "lexer.re2c"
     Parser.AND
-#555 "lexer.ml"
+#562 "lexer.ml"
 
 and yy56 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
@@ -559,7 +566,7 @@ and yy56 (yyrecord : lexbuf) : Parser.token =
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 'l' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy70 [@tailcall]) yyrecord
+            (yy72 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy57 (yyrecord : lexbuf) : Parser.token =
@@ -568,7 +575,7 @@ and yy57 (yyrecord : lexbuf) : Parser.token =
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 'e' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy72 [@tailcall]) yyrecord
+            (yy74 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy58 (yyrecord : lexbuf) : Parser.token =
@@ -577,7 +584,7 @@ and yy58 (yyrecord : lexbuf) : Parser.token =
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 's' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy74 [@tailcall]) yyrecord
+            (yy76 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy59 (yyrecord : lexbuf) : Parser.token =
@@ -586,7 +593,7 @@ and yy59 (yyrecord : lexbuf) : Parser.token =
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 'a' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy75 [@tailcall]) yyrecord
+            (yy77 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy60 (yyrecord : lexbuf) : Parser.token =
@@ -603,25 +610,18 @@ and yy60 (yyrecord : lexbuf) : Parser.token =
 and yy61 (yyrecord : lexbuf) : Parser.token =
 #40 "lexer.re2c"
     Parser.FUN
-#607 "lexer.ml"
+#614 "lexer.ml"
 
 and yy62 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
-        | '0'..'9'
-        | 'A'..'Z'
-        | '_'
-        | 'a'..'z' ->
+        | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 't' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy16 [@tailcall]) yyrecord
-        | _ -> (yy63 [@tailcall]) yyrecord
+            (yy78 [@tailcall]) yyrecord
+        | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy63 (yyrecord : lexbuf) : Parser.token =
-#36 "lexer.re2c"
-    Parser.LET
-#623 "lexer.ml"
-
-and yy64 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
         | '0'..'9'
@@ -630,45 +630,52 @@ and yy64 (yyrecord : lexbuf) : Parser.token =
         | 'a'..'z' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
             (yy16 [@tailcall]) yyrecord
-        | _ -> (yy65 [@tailcall]) yyrecord
+        | _ -> (yy64 [@tailcall]) yyrecord
 
-and yy65 (yyrecord : lexbuf) : Parser.token =
-#37 "lexer.re2c"
-    Parser.REC
+and yy64 (yyrecord : lexbuf) : Parser.token =
+#36 "lexer.re2c"
+    Parser.LET
 #639 "lexer.ml"
 
-and yy66 (yyrecord : lexbuf) : Parser.token =
+and yy65 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
-        | '\x00' -> (yy18 [@tailcall]) yyrecord
-        | 'n' ->
+        | '0'..'9'
+        | 'A'..'Z'
+        | '_'
+        | 'a'..'z' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy76 [@tailcall]) yyrecord
-        | _ -> (yy17 [@tailcall]) yyrecord yych
+            (yy16 [@tailcall]) yyrecord
+        | _ -> (yy66 [@tailcall]) yyrecord
+
+and yy66 (yyrecord : lexbuf) : Parser.token =
+#37 "lexer.re2c"
+    Parser.REC
+#655 "lexer.ml"
 
 and yy67 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
         | '\x00' -> (yy18 [@tailcall]) yyrecord
-        | 'e' ->
+        | 'n' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy78 [@tailcall]) yyrecord
+            (yy79 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy68 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
         | '\x00' -> (yy18 [@tailcall]) yyrecord
-        | 'e' ->
+        | 'i' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy80 [@tailcall]) yyrecord
+            (yy81 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy69 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
         | '\x00' -> (yy18 [@tailcall]) yyrecord
-        | 'h' ->
+        | 'e' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
             (yy82 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
@@ -676,18 +683,20 @@ and yy69 (yyrecord : lexbuf) : Parser.token =
 and yy70 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
-        | '0'..'9'
-        | 'A'..'Z'
-        | '_'
-        | 'a'..'z' ->
+        | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 'e' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy16 [@tailcall]) yyrecord
-        | _ -> (yy71 [@tailcall]) yyrecord
+            (yy84 [@tailcall]) yyrecord
+        | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy71 (yyrecord : lexbuf) : Parser.token =
-#48 "lexer.re2c"
-    Parser.BOOL
-#691 "lexer.ml"
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 'h' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy86 [@tailcall]) yyrecord
+        | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy72 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
@@ -701,61 +710,54 @@ and yy72 (yyrecord : lexbuf) : Parser.token =
         | _ -> (yy73 [@tailcall]) yyrecord
 
 and yy73 (yyrecord : lexbuf) : Parser.token =
-#43 "lexer.re2c"
-    Parser.ELSE
-#707 "lexer.ml"
+#48 "lexer.re2c"
+    Parser.BOOL
+#716 "lexer.ml"
 
 and yy74 (yyrecord : lexbuf) : Parser.token =
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '0'..'9'
+        | 'A'..'Z'
+        | '_'
+        | 'a'..'z' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy16 [@tailcall]) yyrecord
+        | _ -> (yy75 [@tailcall]) yyrecord
+
+and yy75 (yyrecord : lexbuf) : Parser.token =
+#43 "lexer.re2c"
+    Parser.ELSE
+#732 "lexer.ml"
+
+and yy76 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 'e' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy84 [@tailcall]) yyrecord
+            (yy88 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
 
-and yy75 (yyrecord : lexbuf) : Parser.token =
+and yy77 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
         | '\x00' -> (yy18 [@tailcall]) yyrecord
         | 'l' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy86 [@tailcall]) yyrecord
+            (yy90 [@tailcall]) yyrecord
         | _ -> (yy17 [@tailcall]) yyrecord yych
-
-and yy76 (yyrecord : lexbuf) : Parser.token =
-    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
-    match yych with
-        | '0'..'9'
-        | 'A'..'Z'
-        | '_'
-        | 'a'..'z' ->
-            yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy16 [@tailcall]) yyrecord
-        | _ -> (yy77 [@tailcall]) yyrecord
-
-and yy77 (yyrecord : lexbuf) : Parser.token =
-#42 "lexer.re2c"
-    Parser.THEN
-#741 "lexer.ml"
 
 and yy78 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
-        | '0'..'9'
-        | 'A'..'Z'
-        | '_'
-        | 'a'..'z' ->
+        | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 'a' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy16 [@tailcall]) yyrecord
-        | _ -> (yy79 [@tailcall]) yyrecord
+            (yy91 [@tailcall]) yyrecord
+        | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy79 (yyrecord : lexbuf) : Parser.token =
-#44 "lexer.re2c"
-    Parser.TRUE
-#757 "lexer.ml"
-
-and yy80 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
         | '0'..'9'
@@ -764,12 +766,21 @@ and yy80 (yyrecord : lexbuf) : Parser.token =
         | 'a'..'z' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
             (yy16 [@tailcall]) yyrecord
-        | _ -> (yy81 [@tailcall]) yyrecord
+        | _ -> (yy80 [@tailcall]) yyrecord
+
+and yy80 (yyrecord : lexbuf) : Parser.token =
+#42 "lexer.re2c"
+    Parser.THEN
+#775 "lexer.ml"
 
 and yy81 (yyrecord : lexbuf) : Parser.token =
-#47 "lexer.re2c"
-    Parser.TYPE
-#773 "lexer.ml"
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 't' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy92 [@tailcall]) yyrecord
+        | _ -> (yy17 [@tailcall]) yyrecord yych
 
 and yy82 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
@@ -783,9 +794,9 @@ and yy82 (yyrecord : lexbuf) : Parser.token =
         | _ -> (yy83 [@tailcall]) yyrecord
 
 and yy83 (yyrecord : lexbuf) : Parser.token =
-#46 "lexer.re2c"
-    Parser.WITH
-#789 "lexer.ml"
+#44 "lexer.re2c"
+    Parser.TRUE
+#800 "lexer.ml"
 
 and yy84 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
@@ -799,20 +810,11 @@ and yy84 (yyrecord : lexbuf) : Parser.token =
         | _ -> (yy85 [@tailcall]) yyrecord
 
 and yy85 (yyrecord : lexbuf) : Parser.token =
-#45 "lexer.re2c"
-    Parser.FALSE
-#805 "lexer.ml"
+#47 "lexer.re2c"
+    Parser.TYPE
+#816 "lexer.ml"
 
 and yy86 (yyrecord : lexbuf) : Parser.token =
-    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
-    match yych with
-        | '\x00' -> (yy18 [@tailcall]) yyrecord
-        | 'l' ->
-            yyrecord.yycursor <- yyrecord.yycursor + 1;
-            (yy87 [@tailcall]) yyrecord
-        | _ -> (yy17 [@tailcall]) yyrecord yych
-
-and yy87 (yyrecord : lexbuf) : Parser.token =
     let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
     match yych with
         | '0'..'9'
@@ -821,20 +823,120 @@ and yy87 (yyrecord : lexbuf) : Parser.token =
         | 'a'..'z' ->
             yyrecord.yycursor <- yyrecord.yycursor + 1;
             (yy16 [@tailcall]) yyrecord
-        | _ -> (yy88 [@tailcall]) yyrecord
+        | _ -> (yy87 [@tailcall]) yyrecord
+
+and yy87 (yyrecord : lexbuf) : Parser.token =
+#46 "lexer.re2c"
+    Parser.WITH
+#832 "lexer.ml"
 
 and yy88 (yyrecord : lexbuf) : Parser.token =
-#49 "lexer.re2c"
-    Parser.FORALL
-#830 "lexer.ml"
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '0'..'9'
+        | 'A'..'Z'
+        | '_'
+        | 'a'..'z' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy16 [@tailcall]) yyrecord
+        | _ -> (yy89 [@tailcall]) yyrecord
 
 and yy89 (yyrecord : lexbuf) : Parser.token =
+#45 "lexer.re2c"
+    Parser.FALSE
+#848 "lexer.ml"
+
+and yy90 (yyrecord : lexbuf) : Parser.token =
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 'l' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy94 [@tailcall]) yyrecord
+        | _ -> (yy17 [@tailcall]) yyrecord yych
+
+and yy91 (yyrecord : lexbuf) : Parser.token =
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 'n' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy96 [@tailcall]) yyrecord
+        | _ -> (yy17 [@tailcall]) yyrecord yych
+
+and yy92 (yyrecord : lexbuf) : Parser.token =
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '0'..'9'
+        | 'A'..'Z'
+        | '_'
+        | 'a'..'z' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy16 [@tailcall]) yyrecord
+        | _ -> (yy93 [@tailcall]) yyrecord
+
+and yy93 (yyrecord : lexbuf) : Parser.token =
+#50 "lexer.re2c"
+    Parser.TRAIT
+#882 "lexer.ml"
+
+and yy94 (yyrecord : lexbuf) : Parser.token =
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '0'..'9'
+        | 'A'..'Z'
+        | '_'
+        | 'a'..'z' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy16 [@tailcall]) yyrecord
+        | _ -> (yy95 [@tailcall]) yyrecord
+
+and yy95 (yyrecord : lexbuf) : Parser.token =
+#49 "lexer.re2c"
+    Parser.FORALL
+#898 "lexer.ml"
+
+and yy96 (yyrecord : lexbuf) : Parser.token =
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 'c' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy97 [@tailcall]) yyrecord
+        | _ -> (yy17 [@tailcall]) yyrecord yych
+
+and yy97 (yyrecord : lexbuf) : Parser.token =
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '\x00' -> (yy18 [@tailcall]) yyrecord
+        | 'e' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy98 [@tailcall]) yyrecord
+        | _ -> (yy17 [@tailcall]) yyrecord yych
+
+and yy98 (yyrecord : lexbuf) : Parser.token =
+    let yych = unsafe_get yyrecord.yyinput yyrecord.yycursor in
+    match yych with
+        | '0'..'9'
+        | 'A'..'Z'
+        | '_'
+        | 'a'..'z' ->
+            yyrecord.yycursor <- yyrecord.yycursor + 1;
+            (yy16 [@tailcall]) yyrecord
+        | _ -> (yy99 [@tailcall]) yyrecord
+
+and yy99 (yyrecord : lexbuf) : Parser.token =
+#51 "lexer.re2c"
+    Parser.INSTANCE
+#932 "lexer.ml"
+
+and yy100 (yyrecord : lexbuf) : Parser.token =
 #32 "lexer.re2c"
     Parser.EOF
-#835 "lexer.ml"
+#937 "lexer.ml"
 
 and lex (yyrecord : lexbuf) : Parser.token =
     (yy0 [@tailcall]) yyrecord
 
-#75 "lexer.re2c"
+#77 "lexer.re2c"
 

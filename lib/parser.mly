@@ -15,6 +15,8 @@
 %token TYPE
 %token BOOL
 %token FORALL
+%token TRAIT
+%token INSTANCE
 
 (* punctuation / operators *)
 %token ARROW       (* ->  *)
