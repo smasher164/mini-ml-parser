@@ -17,8 +17,15 @@ type row_constraint =
   | ClosedRow of record_ty
 [@@deriving sexp_of]
 
+type pred = {
+  trait : id;
+  args : ty list;
+}
+[@@deriving sexp_of]
+
 type generic_ty = {
   type_params : (id * row_constraint) list;
+  predicates : pred list;
   ty : ty;
 }
 [@@deriving sexp_of]
@@ -58,7 +65,8 @@ let map_prog
     ?(on_no_row     = fun ()      -> failwith "NoRow unsupported")
     ?(on_open_row   = fun _       -> failwith "OpenRow unsupported")
     ?(on_closed_row = fun _       -> failwith "ClosedRow unsupported")
-    ?(on_generic_ty = fun _ _     -> failwith "generic_ty unsupported")
+    ?(on_pred       = fun _ _     -> failwith "pred unsupported")
+    ?(on_generic_ty = fun _ _ _   -> failwith "generic_ty unsupported")
     ?(on_tycon      = fun _ _ _   -> failwith "tycon unsupported")
     ?(on_let_decl   = fun _ _ _   -> failwith "let_decl unsupported")
     ?(on_bool       = fun _       -> failwith "EBool unsupported")
@@ -85,9 +93,13 @@ let map_prog
     | OpenRow fs   -> on_open_row (go_record_ty fs)
     | ClosedRow fs -> on_closed_row (go_record_ty fs)
   in
-  let go_generic_ty ({ type_params; ty } : generic_ty) =
+  let go_pred ({ trait; args } : pred) =
+    on_pred trait (List.map go_ty args)
+  in
+  let go_generic_ty ({ type_params; predicates; ty } : generic_ty) =
     let ps = List.map (fun (x, r) -> (x, go_row r)) type_params in
-    on_generic_ty ps (go_ty ty)
+    let preds = List.map go_pred predicates in
+    on_generic_ty ps preds (go_ty ty)
   in
   let go_tycon ({ name; type_params; ty } : tycon) =
     on_tycon name type_params (go_record_ty ty)
