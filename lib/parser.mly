@@ -74,9 +74,9 @@ let_decl:
 
 generic_ty:
   | t = ty
-      { { Ast.type_params = []; ty = t } }
+      { { Ast.type_params = []; predicates = []; ty = t } }
   | FORALL tvs = nonempty_list(TYVAR) DOT t = ty
-      { { Ast.type_params = List.map (fun tv -> (tv, Ast.NoRow)) tvs; ty = t } }
+      { { Ast.type_params = List.map (fun tv -> (tv, Ast.NoRow)) tvs; predicates = []; ty = t } }
   | FORALL tvs = nonempty_list(TYVAR) DOT
       cs = separated_nonempty_list(COMMA, row_constraint_decl) FATARROW t = ty
       { let params = List.map (fun tv ->
@@ -84,7 +84,7 @@ generic_ty:
           | Some r -> (tv, r)
           | None   -> (tv, Ast.NoRow)) tvs
         in
-        { Ast.type_params = params; ty = t } }
+        { Ast.type_params = params; predicates = []; ty = t } }
 
 row_constraint_decl:
   | tv = TYVAR COLONCOLON r = row_body
