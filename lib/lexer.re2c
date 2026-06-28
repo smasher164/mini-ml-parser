@@ -47,6 +47,8 @@ let make input =
   "type"      { Parser.TYPE }
   "bool"      { Parser.BOOL }
   "forall"    { Parser.FORALL }
+  "trait"     { Parser.TRAIT }
+  "instance"  { Parser.INSTANCE }
 
   // Punctuation
   "..."       { Parser.DOTS }
