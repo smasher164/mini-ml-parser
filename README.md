@@ -7,15 +7,30 @@ and downstream experiments.
 
 ## Language
 
-A program is a list of `type` declarations followed by a single
-expression. Expressions include `let` / `let rec`, `fun`, `if`,
-records with row-polymorphic update (`with`) and projection, and a
-`bool` base type. See [`lib/ast.ml`](lib/ast.ml) for the full shape.
+A program is a list of `type`, `trait`, and `instance` declarations
+followed by a single expression. Expressions include `let` / `let rec`,
+`fun`, `if`, records with row-polymorphic update (`with`) and
+projection, and a `bool` base type. Any type variables in an instance
+head must be explicitly quantified with `forall`. See
+[`lib/ast.ml`](lib/ast.ml) for the full shape.
 
 Example:
 
 ```
 type pair 'a 'b = { fst : 'a, snd : 'b }
+
+trait Eq 'a = { eq : 'a -> 'a -> bool }
+instance Eq bool = {
+  eq = fun a -> fun b ->
+    if a then b
+    else if b then false
+    else true
+}
+instance forall 'a. Eq 'a => Eq (pair 'a 'a) = {
+  eq = fun p -> fun q ->
+    if eq p.fst q.fst then eq p.snd q.snd
+    else false
+}
 
 let swap = fun p -> { fst = p.snd, snd = p.fst } in
 swap { fst = true, snd = false }
@@ -44,10 +59,11 @@ Add `mini_ml_parser` to your `dune` `libraries` stanza, then:
 let ast = Mini_ml.Parser.parse_string "let x = true in x"
 ```
 
-`parse_string` returns an `Ast.prog`, which is a tuple of type
-declarations and an expression AST. The AST derives `sexp_of` via
-`ppx_sexp_conv`. Syntax errors raise `Mini_ml.Parser.Error`; an
-unexpected character raises `Failure`.
+`parse_string` returns an `Ast.prog`, which is a record of type
+declarations, trait declarations, instance declarations, and an
+expression AST. The AST derives `sexp_of` via `ppx_sexp_conv`. Syntax
+errors raise `Mini_ml.Parser.Error`; an unexpected character raises
+`Failure`.
 
 ## Transforming the AST with `map_prog`
 
@@ -68,7 +84,7 @@ let exp_only (prog : prog) : exp =
     ~on_lam:    (fun x e -> ELam (x, e))
     ~on_app:    (fun f a -> EApp (f, a))
     (* ... other expression handlers ... *)
-    ~on_prog:   (fun _tycons e -> e)
+    ~on_prog:   (fun { exp; _ } -> exp)
     prog
 ```
 
