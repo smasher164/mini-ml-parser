@@ -9,7 +9,9 @@ type ty =
   | TyApp of ty list
 [@@deriving sexp_of]
 
-type record_ty = (id * ty) list [@@deriving sexp_of]
+type 'ty f_record_ty = (id * 'ty) list [@@deriving sexp_of]
+
+type record_ty = ty f_record_ty [@@deriving sexp_of]
 
 type row_constraint =
   | NoRow
@@ -17,27 +19,33 @@ type row_constraint =
   | ClosedRow of record_ty
 [@@deriving sexp_of]
 
-type pred = {
+type 'ty f_pred = {
   trait : id;
-  args : ty list;
+  args : 'ty list;
 }
 [@@deriving sexp_of]
 
-type ('row, 'pred, 'ty) generic_ty_parts = {
+type pred = ty f_pred
+[@@deriving sexp_of]
+
+type ('row, 'pred, 'ty) f_generic_ty = {
   type_params : (id * 'row) list;
   predicates : 'pred list;
   ty : 'ty;
 }
 [@@deriving sexp_of]
 
-type generic_ty = (row_constraint, pred, ty) generic_ty_parts
+type generic_ty = (row_constraint, pred, ty) f_generic_ty
 [@@deriving sexp_of]
 
-type tycon = {
+type 'ty f_tycon = {
   name : id;
   type_params : id list;
-  ty : record_ty;
+  ty : 'ty f_record_ty;
 }
+[@@deriving sexp_of]
+
+type tycon = ty f_tycon
 [@@deriving sexp_of]
 
 type exp =
@@ -52,27 +60,34 @@ type exp =
   | ELet of let_decl * exp
   | ELetRec of let_decl list * exp
 
-and record_lit = (id * exp) list
+and 'exp f_record_lit = (id * 'exp) list
+and record_lit = exp f_record_lit
 and let_decl = id * generic_ty option * exp
 [@@deriving sexp_of]
 
-type trait_decl = {
+type 'ty f_trait_decl = {
   name : id;
   type_params : id list;
-  methods : record_ty;
+  methods : 'ty f_record_ty;
 }
 [@@deriving sexp_of]
 
-type instance_decl = {
+type trait_decl = ty f_trait_decl
+[@@deriving sexp_of]
+
+type ('ty, 'pred, 'exp) f_instance_decl = {
   trait : id;
   type_params : id list;
-  args : ty list;
-  context : pred list;
-  methods : record_lit;
+  args : 'ty list;
+  context : 'pred list;
+  methods : 'exp f_record_lit;
 }
 [@@deriving sexp_of]
 
-type ('tycon, 'trait_decl, 'instance_decl, 'exp) prog_parts = {
+type instance_decl = (ty, pred, exp) f_instance_decl
+[@@deriving sexp_of]
+
+type ('tycon, 'trait_decl, 'instance_decl, 'exp) f_prog = {
   tycons : 'tycon list;
   traits : 'trait_decl list;
   instances : 'instance_decl list;
@@ -80,7 +95,7 @@ type ('tycon, 'trait_decl, 'instance_decl, 'exp) prog_parts = {
 }
 [@@deriving sexp_of]
 
-type prog = (tycon, trait_decl, instance_decl, exp) prog_parts
+type prog = (tycon, trait_decl, instance_decl, exp) f_prog
 [@@deriving sexp_of]
 
 (* Map over a program. Can be used by downstream consumers
@@ -93,11 +108,11 @@ let map_prog
     ?(on_no_row     = fun ()      -> failwith "NoRow unsupported")
     ?(on_open_row   = fun _       -> failwith "OpenRow unsupported")
     ?(on_closed_row = fun _       -> failwith "ClosedRow unsupported")
-    ?(on_pred       = fun _ _     -> failwith "pred unsupported")
+    ?(on_pred       = fun _       -> failwith "pred unsupported")
     ?(on_generic_ty = fun _       -> failwith "generic_ty unsupported")
-    ?(on_tycon      = fun _ _ _   -> failwith "tycon unsupported")
-    ?(on_trait_decl    = fun _ _ _      -> failwith "trait_decl unsupported")
-    ?(on_instance_decl = fun _ _ _ _ _  -> failwith "instance_decl unsupported")
+    ?(on_tycon      = fun _       -> failwith "tycon unsupported")
+    ?(on_trait_decl    = fun _    -> failwith "trait_decl unsupported")
+    ?(on_instance_decl = fun _    -> failwith "instance_decl unsupported")
     ?(on_let_decl   = fun _ _ _   -> failwith "let_decl unsupported")
     ?(on_bool       = fun _       -> failwith "EBool unsupported")
     ?(on_var        = fun _       -> failwith "EVar unsupported")
@@ -124,7 +139,7 @@ let map_prog
     | ClosedRow fs -> on_closed_row (go_record_ty fs)
   in
   let go_pred ({ trait; args } : pred) =
-    on_pred trait (List.map go_ty args)
+    on_pred { trait; args = List.map go_ty args }
   in
   let go_generic_ty ({ type_params; predicates; ty } : generic_ty) =
     let type_params = List.map (fun (x, r) -> (x, go_row r)) type_params in
@@ -132,10 +147,10 @@ let map_prog
     on_generic_ty { type_params; predicates; ty = go_ty ty }
   in
   let go_tycon ({ name; type_params; ty } : tycon) =
-    on_tycon name type_params (go_record_ty ty)
+    on_tycon { name; type_params; ty = go_record_ty ty }
   in
   let go_trait_decl ({ name; type_params; methods } : trait_decl) =
-    on_trait_decl name type_params (go_record_ty methods)
+    on_trait_decl { name; type_params; methods = go_record_ty methods }
   in
   let rec go_exp = function
     | EBool b            -> on_bool b
@@ -153,10 +168,13 @@ let map_prog
     on_let_decl x (Option.map go_generic_ty gty) (go_exp rhs)
   in
   let go_instance_decl ({ trait; type_params; args; context; methods } : instance_decl) =
-    on_instance_decl trait type_params
-      (List.map go_ty args)
-      (List.map go_pred context)
-      (go_record_lit methods)
+    on_instance_decl {
+      trait;
+      type_params;
+      args = List.map go_ty args;
+      context = List.map go_pred context;
+      methods = go_record_lit methods;
+    }
   in
   let { tycons; traits; instances; exp } = prog in
   on_prog {
