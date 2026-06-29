@@ -23,11 +23,14 @@ type pred = {
 }
 [@@deriving sexp_of]
 
-type generic_ty = {
-  type_params : (id * row_constraint) list;
-  predicates : pred list;
-  ty : ty;
+type ('row, 'pred, 'ty) generic_ty_parts = {
+  type_params : (id * 'row) list;
+  predicates : 'pred list;
+  ty : 'ty;
 }
+[@@deriving sexp_of]
+
+type generic_ty = (row_constraint, pred, ty) generic_ty_parts
 [@@deriving sexp_of]
 
 type tycon = {
@@ -69,7 +72,16 @@ type instance_decl = {
 }
 [@@deriving sexp_of]
 
-type prog = tycon list * exp [@@deriving sexp_of]
+type ('tycon, 'trait_decl, 'instance_decl, 'exp) prog_parts = {
+  tycons : 'tycon list;
+  traits : 'trait_decl list;
+  instances : 'instance_decl list;
+  exp : 'exp;
+}
+[@@deriving sexp_of]
+
+type prog = (tycon, trait_decl, instance_decl, exp) prog_parts
+[@@deriving sexp_of]
 
 (* Map over a program. Can be used by downstream consumers
    to produce an AST with only the nodes they want. *)
@@ -82,8 +94,10 @@ let map_prog
     ?(on_open_row   = fun _       -> failwith "OpenRow unsupported")
     ?(on_closed_row = fun _       -> failwith "ClosedRow unsupported")
     ?(on_pred       = fun _ _     -> failwith "pred unsupported")
-    ?(on_generic_ty = fun _ _ _   -> failwith "generic_ty unsupported")
+    ?(on_generic_ty = fun _       -> failwith "generic_ty unsupported")
     ?(on_tycon      = fun _ _ _   -> failwith "tycon unsupported")
+    ?(on_trait_decl    = fun _ _ _      -> failwith "trait_decl unsupported")
+    ?(on_instance_decl = fun _ _ _ _ _  -> failwith "instance_decl unsupported")
     ?(on_let_decl   = fun _ _ _   -> failwith "let_decl unsupported")
     ?(on_bool       = fun _       -> failwith "EBool unsupported")
     ?(on_var        = fun _       -> failwith "EVar unsupported")
@@ -95,7 +109,7 @@ let map_prog
     ?(on_proj       = fun _ _     -> failwith "EProj unsupported")
     ?(on_let        = fun _ _     -> failwith "ELet unsupported")
     ?(on_letrec     = fun _ _     -> failwith "ELetRec unsupported")
-    ?(on_prog       = fun _ _     -> failwith "prog unsupported")
+    ?(on_prog       = fun _       -> failwith "prog unsupported")
     (prog : prog) =
   let rec go_ty = function
     | TyBool         -> on_ty_bool ()
@@ -113,12 +127,15 @@ let map_prog
     on_pred trait (List.map go_ty args)
   in
   let go_generic_ty ({ type_params; predicates; ty } : generic_ty) =
-    let ps = List.map (fun (x, r) -> (x, go_row r)) type_params in
-    let preds = List.map go_pred predicates in
-    on_generic_ty ps preds (go_ty ty)
+    let type_params = List.map (fun (x, r) -> (x, go_row r)) type_params in
+    let predicates = List.map go_pred predicates in
+    on_generic_ty { type_params; predicates; ty = go_ty ty }
   in
   let go_tycon ({ name; type_params; ty } : tycon) =
     on_tycon name type_params (go_record_ty ty)
+  in
+  let go_trait_decl ({ name; type_params; methods } : trait_decl) =
+    on_trait_decl name type_params (go_record_ty methods)
   in
   let rec go_exp = function
     | EBool b            -> on_bool b
@@ -135,5 +152,16 @@ let map_prog
   and go_let_decl (x, gty, rhs) =
     on_let_decl x (Option.map go_generic_ty gty) (go_exp rhs)
   in
-  let (tycons, e) = prog in
-  on_prog (List.map go_tycon tycons) (go_exp e)
+  let go_instance_decl ({ trait; type_params; args; context; methods } : instance_decl) =
+    on_instance_decl trait type_params
+      (List.map go_ty args)
+      (List.map go_pred context)
+      (go_record_lit methods)
+  in
+  let { tycons; traits; instances; exp } = prog in
+  on_prog {
+    tycons = List.map go_tycon tycons;
+    traits = List.map go_trait_decl traits;
+    instances = List.map go_instance_decl instances;
+    exp = go_exp exp;
+  }

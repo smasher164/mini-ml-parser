@@ -53,7 +53,7 @@ let pred_of_ty t =
 
 program:
   | tycons = list(tycon_decl) e = exp EOF
-      { (tycons, e) }
+      { { Ast.tycons; traits = []; instances = []; exp = e } }
 
 tycon_decl:
   | TYPE name = IDENT params = list(TYVAR) EQ body = tycon_body
