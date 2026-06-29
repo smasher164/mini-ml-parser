@@ -50,8 +50,11 @@ if project q then id true else strict (other q)
       ~on_open_row:  (fun fs -> OpenRow fs)
       ~on_closed_row:(fun fs -> ClosedRow fs)
       ~on_pred:      (fun trait args -> { trait; args })
-      ~on_generic_ty:(fun type_params predicates ty -> { type_params; predicates; ty })
+      ~on_generic_ty:(fun parts -> parts)
       ~on_tycon:     (fun name type_params ty -> { name; type_params; ty })
+      ~on_trait_decl:(fun name type_params methods -> { name; type_params; methods })
+      ~on_instance_decl:(fun trait type_params args context methods ->
+        { trait; type_params; args; context; methods })
       ~on_let_decl:  (fun x gty rhs -> (x, gty, rhs))
       ~on_bool:      (fun b -> EBool b)
       ~on_var:       (fun x -> EVar x)
@@ -63,7 +66,7 @@ if project q then id true else strict (other q)
       ~on_proj:      (fun e x -> EProj (e, x))
       ~on_let:       (fun d body -> ELet (d, body))
       ~on_letrec:    (fun ds body -> ELetRec (ds, body))
-      ~on_prog:      (fun tycons e -> (tycons, e))
+      ~on_prog:      (fun parts -> parts)
       prog
   in
   let original = Parser.parse_string source in
