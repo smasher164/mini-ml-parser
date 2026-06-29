@@ -1,3 +1,14 @@
+%{
+let pred_of_ty t =
+  match t with
+  | Ast.TyApp (Ast.TyName n :: args) when n.[0] <> '\'' ->
+      { Ast.trait = n; args }
+  | Ast.TyName n when n.[0] <> '\'' ->
+      { Ast.trait = n; args = [] }
+  | _ ->
+      failwith "expected a trait predicate before `=>`"
+%}
+
 %token EOF
 
 (* keywords *)
@@ -75,16 +86,30 @@ let_decl:
 generic_ty:
   | t = ty
       { { Ast.type_params = []; predicates = []; ty = t } }
-  | FORALL tvs = nonempty_list(TYVAR) DOT t = ty
-      { { Ast.type_params = List.map (fun tv -> (tv, Ast.NoRow)) tvs; predicates = []; ty = t } }
-  | FORALL tvs = nonempty_list(TYVAR) DOT
-      cs = separated_nonempty_list(COMMA, row_constraint_decl) FATARROW t = ty
-      { let params = List.map (fun tv ->
-          match List.assoc_opt tv cs with
+  | FORALL tvs = nonempty_list(TYVAR) DOT body = forall_body
+      { let (row_cs, preds, t) = body in
+        let params = List.map (fun tv ->
+          match List.assoc_opt tv row_cs with
           | Some r -> (tv, r)
           | None   -> (tv, Ast.NoRow)) tvs
         in
-        { Ast.type_params = params; predicates = []; ty = t } }
+        { Ast.type_params = params; predicates = preds; ty = t } }
+
+forall_body:
+  | t = ty
+      { ([], [], t) }
+  | cs = constraint_list FATARROW t = ty
+      { let (rows, preds) = cs in (rows, preds, t) }
+
+constraint_list:
+  | t = ty
+      { ([], [pred_of_ty t]) }
+  | rc = row_constraint_decl
+      { ([rc], []) }
+  | t = ty COMMA rest = constraint_list
+      { let (rs, ps) = rest in (rs, pred_of_ty t :: ps) }
+  | rc = row_constraint_decl COMMA rest = constraint_list
+      { let (rs, ps) = rest in (rc :: rs, ps) }
 
 row_constraint_decl:
   | tv = TYVAR COLONCOLON r = row_body
