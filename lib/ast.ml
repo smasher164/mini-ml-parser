@@ -53,6 +53,22 @@ and record_lit = (id * exp) list
 and let_decl = id * generic_ty option * exp
 [@@deriving sexp_of]
 
+type trait_decl = {
+  name : id;
+  type_params : id list;
+  methods : record_ty;
+}
+[@@deriving sexp_of]
+
+type instance_decl = {
+  trait : id;
+  type_params : id list;
+  args : ty list;
+  context : pred list;
+  methods : record_lit;
+}
+[@@deriving sexp_of]
+
 type prog = tycon list * exp [@@deriving sexp_of]
 
 (* Map over a program. Can be used by downstream consumers
