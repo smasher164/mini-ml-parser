@@ -82,16 +82,15 @@ type ('ty, 'fundep) f_trait_decl = {
 type trait_decl = (ty, fundep) f_trait_decl
 [@@deriving sexp_of]
 
-type ('ty, 'pred, 'exp) f_instance_decl = {
-  trait : id;
+type ('pred, 'exp) f_instance_decl = {
+  head : 'pred;
   type_params : id list;
-  args : 'ty list;
   context : 'pred list;
   methods : 'exp f_record_lit;
 }
 [@@deriving sexp_of]
 
-type instance_decl = (ty, pred, exp) f_instance_decl
+type instance_decl = (pred, exp) f_instance_decl
 [@@deriving sexp_of]
 
 type ('tycon, 'trait_decl, 'instance_decl, 'exp) f_prog = {
@@ -180,11 +179,10 @@ let map_prog
   and go_let_decl (x, gty, rhs) =
     on_let_decl x (Option.map go_generic_ty gty) (go_exp rhs)
   in
-  let go_instance_decl ({ trait; type_params; args; context; methods } : instance_decl) =
+  let go_instance_decl ({ head; type_params; context; methods } : instance_decl) =
     on_instance_decl {
-      trait;
+      head = go_pred head;
       type_params;
-      args = List.map go_ty args;
       context = List.map go_pred context;
       methods = go_record_lit methods;
     }

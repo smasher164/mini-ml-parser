@@ -81,17 +81,15 @@ fundep:
 
 instance_decl:
   | INSTANCE gty = generic_ty EQ LBRACE methods = record_lit RBRACE
-      { let { Ast.type_params; predicates; ty = head } = gty in
+      { let { Ast.type_params; predicates; ty = head_ty } = gty in
         let type_params = List.map (fun (tv, rc) ->
           match rc with
           | Ast.NoRow -> tv
           | _ -> failwith (Printf.sprintf
               "instance head cannot have row constraint on %s" tv)
         ) type_params in
-        let p = pred_of_ty head in
-        { Ast.trait = p.trait;
+        { Ast.head = pred_of_ty head_ty;
           type_params;
-          args = p.args;
           context = predicates;
           methods } }
 
