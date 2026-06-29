@@ -52,22 +52,37 @@ let pred_of_ty t =
 %%
 
 program:
-  | tycons = list(tycon_decl) traits = list(trait_decl) e = exp EOF
-      { { Ast.tycons; traits; instances = []; exp = e } }
+  | tycons = list(tycon_decl) traits = list(trait_decl)
+      instances = list(instance_decl) e = exp EOF
+      { { Ast.tycons; traits; instances; exp = e } }
 
 tycon_decl:
   | TYPE name = IDENT params = list(TYVAR) EQ body = tycon_body
       { { Ast.name = name; type_params = params; ty = body } }
 
 tycon_body:
-  | LBRACE RBRACE
-      { [] }
-  | LBRACE fs = separated_nonempty_list(COMMA, row_field) RBRACE
+  | LBRACE fs = separated_list(COMMA, row_field) RBRACE
       { fs }
 
 trait_decl:
   | TRAIT name = IDENT type_params = nonempty_list(TYVAR) EQ methods = tycon_body
       { { Ast.name; type_params; methods } }
+
+instance_decl:
+  | INSTANCE gty = generic_ty EQ LBRACE methods = record_lit RBRACE
+      { let { Ast.type_params; predicates; ty = head } = gty in
+        let type_params = List.map (fun (tv, rc) ->
+          match rc with
+          | Ast.NoRow -> tv
+          | _ -> failwith (Printf.sprintf
+              "instance head cannot have row constraint on %s" tv)
+        ) type_params in
+        let p = pred_of_ty head in
+        { Ast.trait = p.trait;
+          type_params;
+          args = p.args;
+          context = predicates;
+          methods } }
 
 exp:
   | FUN x = IDENT ARROW body = exp
@@ -164,12 +179,14 @@ atom_exp:
   | r = atom_exp DOT fld = IDENT { Ast.EProj (r, fld) }
 
 record_body:
-  | (* empty *)
-      { Ast.ERecord [] }
-  | fs = separated_nonempty_list(COMMA, record_field)
+  | fs = record_lit
       { Ast.ERecord fs }
   | r = exp WITH fs = separated_nonempty_list(COMMA, record_field)
       { Ast.EWith (r, fs) }
+
+record_lit:
+  | fs = separated_list(COMMA, record_field)
+      { fs }
 
 record_field:
   | x = IDENT EQ e = exp         { (x, e) }
