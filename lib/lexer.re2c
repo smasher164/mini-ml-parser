@@ -63,6 +63,7 @@ let make input =
   ")"         { Parser.RPAREN }
   "{"         { Parser.LBRACE }
   "}"         { Parser.RBRACE }
+  "|"         { Parser.PIPE }
 
   // Identifiers
   ident = [a-zA-Z_][a-zA-Z_0-9]*;

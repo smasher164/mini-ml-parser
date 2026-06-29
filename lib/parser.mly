@@ -42,6 +42,7 @@ let pred_of_ty t =
 %token LBRACE      (* {   *)
 %token RBRACE      (* }   *)
 %token DOTS        (* ... *)
+%token PIPE        (* |   *)
 
 (* lexemes with payload *)
 %token <string> IDENT
@@ -65,8 +66,18 @@ tycon_body:
       { fs }
 
 trait_decl:
-  | TRAIT name = IDENT type_params = nonempty_list(TYVAR) EQ methods = tycon_body
-      { { Ast.name; type_params; methods } }
+  | TRAIT name = IDENT type_params = nonempty_list(TYVAR)
+      fundeps = optional_fundeps EQ methods = tycon_body
+      { { Ast.name; type_params; fundeps; methods } }
+
+optional_fundeps:
+  | (* empty *)                                  { [] }
+  | PIPE fds = separated_nonempty_list(COMMA, fundep)
+      { fds }
+
+fundep:
+  | lhs = nonempty_list(TYVAR) ARROW rhs = nonempty_list(TYVAR)
+      { { Ast.lhs; rhs } }
 
 instance_decl:
   | INSTANCE gty = generic_ty EQ LBRACE methods = record_lit RBRACE
