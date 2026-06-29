@@ -65,14 +65,21 @@ and record_lit = exp f_record_lit
 and let_decl = id * generic_ty option * exp
 [@@deriving sexp_of]
 
-type 'ty f_trait_decl = {
+type fundep = {
+  lhs : id list;
+  rhs : id list;
+}
+[@@deriving sexp_of]
+
+type ('ty, 'fundep) f_trait_decl = {
   name : id;
   type_params : id list;
+  fundeps : 'fundep list;
   methods : 'ty f_record_ty;
 }
 [@@deriving sexp_of]
 
-type trait_decl = ty f_trait_decl
+type trait_decl = (ty, fundep) f_trait_decl
 [@@deriving sexp_of]
 
 type ('ty, 'pred, 'exp) f_instance_decl = {
@@ -111,6 +118,7 @@ let map_prog
     ?(on_pred       = fun _       -> failwith "pred unsupported")
     ?(on_generic_ty = fun _       -> failwith "generic_ty unsupported")
     ?(on_tycon      = fun _       -> failwith "tycon unsupported")
+    ?(on_fundep        = fun _    -> failwith "fundep unsupported")
     ?(on_trait_decl    = fun _    -> failwith "trait_decl unsupported")
     ?(on_instance_decl = fun _    -> failwith "instance_decl unsupported")
     ?(on_let_decl   = fun _ _ _   -> failwith "let_decl unsupported")
@@ -149,8 +157,13 @@ let map_prog
   let go_tycon ({ name; type_params; ty } : tycon) =
     on_tycon { name; type_params; ty = go_record_ty ty }
   in
-  let go_trait_decl ({ name; type_params; methods } : trait_decl) =
-    on_trait_decl { name; type_params; methods = go_record_ty methods }
+  let go_trait_decl ({ name; type_params; fundeps; methods } : trait_decl) =
+    on_trait_decl {
+      name;
+      type_params;
+      fundeps = List.map on_fundep fundeps;
+      methods = go_record_ty methods;
+    }
   in
   let rec go_exp = function
     | EBool b            -> on_bool b
