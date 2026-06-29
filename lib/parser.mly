@@ -52,8 +52,8 @@ let pred_of_ty t =
 %%
 
 program:
-  | tycons = list(tycon_decl) e = exp EOF
-      { { Ast.tycons; traits = []; instances = []; exp = e } }
+  | tycons = list(tycon_decl) traits = list(trait_decl) e = exp EOF
+      { { Ast.tycons; traits; instances = []; exp = e } }
 
 tycon_decl:
   | TYPE name = IDENT params = list(TYVAR) EQ body = tycon_body
@@ -64,6 +64,10 @@ tycon_body:
       { [] }
   | LBRACE fs = separated_nonempty_list(COMMA, row_field) RBRACE
       { fs }
+
+trait_decl:
+  | TRAIT name = IDENT type_params = nonempty_list(TYVAR) EQ methods = tycon_body
+      { { Ast.name; type_params; methods } }
 
 exp:
   | FUN x = IDENT ARROW body = exp
