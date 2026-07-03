@@ -43,10 +43,9 @@ let rec id = fun x -> x
 and other = fun y -> y
 in
 let n : int = 42 in
-let scaled : float -> float = fun x -> x in
-let pi = scaled 3.14 in
-let e = scaled 2.7e0 in
-let half = scaled 0.5e-1 in
+let pi : float = id 3.14 in
+let e = id 2.7e0 in
+let half = id 0.5e-1 in
 let p = mk true false in
 let q = { p with fst = false } in
 if project q then id true else strict (other q)
