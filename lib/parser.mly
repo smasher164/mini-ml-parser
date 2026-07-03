@@ -25,6 +25,8 @@ let pred_of_ty t =
 %token WITH
 %token TYPE
 %token BOOL
+%token INT
+%token FLOAT
 %token FORALL
 %token TRAIT
 %token INSTANCE
@@ -47,6 +49,8 @@ let pred_of_ty t =
 (* lexemes with payload *)
 %token <string> IDENT
 %token <string> TYVAR
+%token <string> INT_LIT
+%token <string> FLOAT_LIT
 
 %start <Ast.prog> program
 
@@ -171,6 +175,8 @@ app_ty:
 
 atom_ty:
   | BOOL                      { Ast.TyBool }
+  | INT                       { Ast.TyInt }
+  | FLOAT                     { Ast.TyFloat }
   | x = IDENT                 { Ast.TyName x }
   | x = TYVAR                 { Ast.TyName x }
   | LPAREN t = ty RPAREN      { t }
@@ -182,6 +188,8 @@ app_exp:
 atom_exp:
   | TRUE                         { Ast.EBool true }
   | FALSE                        { Ast.EBool false }
+  | n = INT_LIT                  { Ast.EInt n }
+  | f = FLOAT_LIT                { Ast.EFloat f }
   | x = IDENT                    { Ast.EVar x }
   | LPAREN e = exp RPAREN        { e }
   | LBRACE b = record_body RBRACE { b }

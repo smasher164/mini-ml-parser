@@ -18,6 +18,13 @@ module Parser = struct
     Parser.program (fun _ -> Lexer.lex buf) (Lexing.from_string "")
 end
 
+(* Integer literals are kept as tokens, so values outside OCaml's native
+   int range parse fine. *)
+let%test "int literal beyond native range" =
+  match (Parser.parse_string "18446744073709551616").exp with
+  | EInt "18446744073709551616" -> true
+  | _ -> false
+
 let%test "map_prog identity round-trip" =
   let source = {|
 type empty = { }
@@ -35,6 +42,11 @@ in
 let rec id = fun x -> x
 and other = fun y -> y
 in
+let n : int = 42 in
+let scaled : float -> float = fun x -> x in
+let pi = scaled 3.14 in
+let e = scaled 2.7e0 in
+let half = scaled 0.5e-1 in
 let p = mk true false in
 let q = { p with fst = false } in
 if project q then id true else strict (other q)
@@ -43,6 +55,8 @@ if project q then id true else strict (other q)
   let roundtrip (prog : prog) : prog =
     map_prog
       ~on_ty_bool:   (fun () -> TyBool)
+      ~on_ty_int:    (fun () -> TyInt)
+      ~on_ty_float:  (fun () -> TyFloat)
       ~on_ty_arrow:  (fun l r -> TyArrow (l, r))
       ~on_ty_name:   (fun x -> TyName x)
       ~on_ty_app:    (fun ts -> TyApp ts)
@@ -57,6 +71,8 @@ if project q then id true else strict (other q)
       ~on_instance_decl:(fun parts -> parts)
       ~on_let_decl:  (fun x gty rhs -> (x, gty, rhs))
       ~on_bool:      (fun b -> EBool b)
+      ~on_int:       (fun n -> EInt n)
+      ~on_float:     (fun f -> EFloat f)
       ~on_var:       (fun x -> EVar x)
       ~on_lam:       (fun x e -> ELam (x, e))
       ~on_app:       (fun f a -> EApp (f, a))

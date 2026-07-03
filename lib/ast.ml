@@ -4,6 +4,8 @@ type id = string [@@deriving sexp_of]
 
 type ty =
   | TyBool
+  | TyInt
+  | TyFloat
   | TyArrow of ty * ty
   | TyName of id
   | TyApp of ty list
@@ -50,6 +52,8 @@ type tycon = ty f_tycon
 
 type exp =
   | EBool of bool
+  | EInt of string
+  | EFloat of string
   | EVar of id
   | ELam of id * exp
   | EApp of exp * exp
@@ -108,6 +112,8 @@ type prog = (tycon, trait_decl, instance_decl, exp) f_prog
    to produce an AST with only the nodes they want. *)
 let map_prog
     ?(on_ty_bool    = fun ()      -> failwith "TyBool unsupported")
+    ?(on_ty_int     = fun ()      -> failwith "TyInt unsupported")
+    ?(on_ty_float   = fun ()      -> failwith "TyFloat unsupported")
     ?(on_ty_arrow   = fun _ _     -> failwith "TyArrow unsupported")
     ?(on_ty_name    = fun _       -> failwith "TyName unsupported")
     ?(on_ty_app     = fun _       -> failwith "TyApp unsupported")
@@ -122,6 +128,8 @@ let map_prog
     ?(on_instance_decl = fun _    -> failwith "instance_decl unsupported")
     ?(on_let_decl   = fun _ _ _   -> failwith "let_decl unsupported")
     ?(on_bool       = fun _       -> failwith "EBool unsupported")
+    ?(on_int        = fun _       -> failwith "EInt unsupported")
+    ?(on_float      = fun _       -> failwith "EFloat unsupported")
     ?(on_var        = fun _       -> failwith "EVar unsupported")
     ?(on_lam        = fun _ _     -> failwith "ELam unsupported")
     ?(on_app        = fun _ _     -> failwith "EApp unsupported")
@@ -135,6 +143,8 @@ let map_prog
     (prog : prog) =
   let rec go_ty = function
     | TyBool         -> on_ty_bool ()
+    | TyInt          -> on_ty_int ()
+    | TyFloat        -> on_ty_float ()
     | TyArrow (l, r) -> on_ty_arrow (go_ty l) (go_ty r)
     | TyName x       -> on_ty_name x
     | TyApp ts       -> on_ty_app (List.map go_ty ts)
@@ -166,6 +176,8 @@ let map_prog
   in
   let rec go_exp = function
     | EBool b            -> on_bool b
+    | EInt n             -> on_int n
+    | EFloat f           -> on_float f
     | EVar x             -> on_var x
     | ELam (x, e)        -> on_lam x (go_exp e)
     | EApp (f, a)        -> on_app (go_exp f) (go_exp a)

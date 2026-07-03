@@ -5,6 +5,7 @@ type lexbuf = {
   yylimit : int;
   mutable yycursor : int;
   mutable yymarker : int;
+  mutable yyaccept : int;
   mutable yyt1 : int;
   (* Tags capturing the start/end of an IDENT or TYVAR lexeme. *)
   mutable t1 : int;
@@ -16,6 +17,7 @@ let make input =
     yylimit = String.length input;
     yycursor = 0;
     yymarker = 0;
+    yyaccept = 0;
     yyt1 = 0;
     t1 = -1;
     t2 = -1;
@@ -46,6 +48,8 @@ let make input =
   "with"      { Parser.WITH }
   "type"      { Parser.TYPE }
   "bool"      { Parser.BOOL }
+  "int"       { Parser.INT }
+  "float"     { Parser.FLOAT }
   "forall"    { Parser.FORALL }
   "trait"     { Parser.TRAIT }
   "instance"  { Parser.INSTANCE }
@@ -74,5 +78,17 @@ let make input =
   }
   @t1 tyvar @t2 {
     Parser.TYVAR (String.sub yyrecord.yyinput yyrecord.t1 (yyrecord.t2 - yyrecord.t1))
+  }
+
+  // Numeric literals
+  digits = [0-9]+;
+  exponent = [eE] [+-]? digits;
+  flt = digits "." [0-9]* exponent? | digits exponent;
+
+  @t1 digits @t2 {
+    Parser.INT_LIT (String.sub yyrecord.yyinput yyrecord.t1 (yyrecord.t2 - yyrecord.t1))
+  }
+  @t1 flt @t2 {
+    Parser.FLOAT_LIT (String.sub yyrecord.yyinput yyrecord.t1 (yyrecord.t2 - yyrecord.t1))
   }
 %}

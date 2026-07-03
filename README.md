@@ -10,7 +10,9 @@ and downstream experiments.
 A program is a list of `type`, `trait`, and `instance` declarations
 followed by a single expression. Expressions include `let` / `let rec`,
 `fun`, `if`, records with row-polymorphic update (`with`) and
-projection, and a `bool` base type. Any type variables in an instance
+projection, and `bool`, `int`, and `float` base types with the
+corresponding literals (`true`, `42`, `3.14`, `1e3`). Any type
+variables in an instance
 head must be explicitly quantified with `forall`. Trait declarations
 can also have functional dependencies by using `|` (e.g.
 `trait Convert 'a 'b | 'a -> 'b`). See [`lib/ast.ml`](lib/ast.ml) for
