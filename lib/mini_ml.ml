@@ -30,6 +30,9 @@ let%test "map_prog identity round-trip" =
 type empty = { }
 type pair 'a 'b = { fst: 'a, snd: 'b }
 
+trait Eq 'a = { eq : 'a -> 'a -> bool }
+trait Eq 'a => Convert 'a 'b | 'a -> 'b = { conv : 'a -> 'b }
+
 let mk : forall 'a 'b. 'a -> 'b -> pair 'a 'b =
   fun x -> fun y -> { fst = x, snd = y }
 in

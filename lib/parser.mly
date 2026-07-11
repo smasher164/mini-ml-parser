@@ -7,6 +7,17 @@ let pred_of_ty t =
       { Ast.trait = n; args = [] }
   | _ ->
       failwith "expected a trait predicate before `=>`"
+
+let trait_head_of_ty t =
+  match t with
+  | Ast.TyApp (Ast.TyName n :: args) when n.[0] <> '\'' ->
+      let type_params = List.map (function
+        | Ast.TyName v when v.[0] = '\'' -> v
+        | _ -> failwith "trait head arguments must be type variables") args
+      in
+      (n, type_params)
+  | _ ->
+      failwith "expected a trait head of the form `C 'a`"
 %}
 
 %token EOF
@@ -70,9 +81,18 @@ tycon_body:
       { fs }
 
 trait_decl:
-  | TRAIT name = IDENT type_params = nonempty_list(TYVAR)
-      fundeps = optional_fundeps EQ methods = tycon_body
-      { { Ast.name; type_params; fundeps; methods } }
+  | TRAIT s = trait_sig fundeps = optional_fundeps EQ methods = tycon_body
+      { let (context, head_ty) = s in
+        let (name, type_params) = trait_head_of_ty head_ty in
+        { Ast.name; type_params; context; fundeps; methods } }
+
+trait_sig:
+  | h = ty
+      { ([], h) }
+  | cs = constraint_list FATARROW h = ty
+      { match cs with
+        | ([], preds) -> (preds, h)
+        | _ -> failwith "trait context cannot have a row constraint" }
 
 optional_fundeps:
   | (* empty *)                                  { [] }
