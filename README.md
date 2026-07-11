@@ -14,7 +14,8 @@ projection, and `bool`, `int`, and `float` base types with the
 corresponding literals (`true`, `42`, `3.14`, `1e3`). Any type
 variables in an instance
 head must be explicitly quantified with `forall`. Trait declarations
-can also have functional dependencies by using `|` (e.g.
+can carry a supertrait context before the head (e.g.
+`trait Eq 'a => Ord 'a`) and functional dependencies by using `|` (e.g.
 `trait Convert 'a 'b | 'a -> 'b`). See [`lib/ast.ml`](lib/ast.ml) for
 the full shape.
 
@@ -24,16 +25,18 @@ Example:
 type pair 'a 'b = { fst : 'a, snd : 'b }
 
 trait Eq 'a = { eq : 'a -> 'a -> bool }
+trait Eq 'a => Ord 'a = { lt : 'a -> 'a -> bool }
+
 instance Eq bool = {
   eq = fun a -> fun b ->
     if a then b
     else if b then false
     else true
 }
-instance forall 'a. Eq 'a => Eq (pair 'a 'a) = {
-  eq = fun p -> fun q ->
-    if eq p.fst q.fst then eq p.snd q.snd
-    else false
+instance forall 'a. Ord 'a => Ord (pair 'a 'a) = {
+  lt = fun p -> fun q ->
+    if eq p.fst q.fst then lt p.snd q.snd
+    else lt p.fst q.fst
 }
 
 let swap = fun p -> { fst = p.snd, snd = p.fst } in
